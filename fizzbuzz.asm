@@ -13,29 +13,42 @@
 ; ------------------------------------------------------------------------------
 
 ; ------------------------------------------------------------------------------
-section .data
+section .data                                  ; Constants
 ; ------------------------------------------------------------------------------
 
-fizz:   db        "Fizz"
-buzz:   db        "Buzz"
-cr:     db        10
+fizz:               db        "Fizz"
+buzz:               db        "Buzz"
+cr:                 db        10
+
+last_num:           equ       10               ; Numbers go from 1 to last_num
 
 ; ------------------------------------------------------------------------------
-section .text
+section .bss                                   ; variables
+; ------------------------------------------------------------------------------
+
+output_buffer:      resb   1                   ; Buffer for digit print
+
+; ------------------------------------------------------------------------------
+section .text                                  ; program
 ; ------------------------------------------------------------------------------
 
         global _start
 
 _start:
-        xor        r8, r8
+        xor        r8, r8                      ; R8 - Loop counter e.g. 1..100
+        mov        r9, 9
 
 main_loop:
         inc        r8
 
         ; do checks and print
-        call       print_fizz
+        ;call       print_fizz
 
-        cmp        r8, 100
+        ; temp: check 9..0 digits print
+        call       print_byte_as_num
+        dec        r9
+
+        cmp        r8, last_num
         je         exit_0                      ; Exit once 100 reached
         jmp        main_loop                   ; else keep looping
 
@@ -78,7 +91,27 @@ print_new_line:
 
         ret
 
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; ----------------------------------------------------------
+; Print a positive integer in Ascii to stdout
+; Input: r9 = byte to print
+; r9 is preserved
+; ----------------------------------------------------------
+print_byte_as_num:
+        push       r9
+
+        add        r9, 0x30                    ; Convert int to char
+        mov        [output_buffer], r9
+
+        mov        rax, 1                      ; sys_write
+        mov        rdi, 1                      ; stdout
+        mov        rsi, output_buffer          ; the ascii
+        mov        rdx, 1                      ; length
+        syscall
+
+        call       print_new_line
+
+        pop        r9
+        ret
 
 ; ----------------------------------------------------------
 ; Exit program and pass 0 (success) back to calling OS.
