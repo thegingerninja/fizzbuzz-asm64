@@ -27,17 +27,23 @@ section .text
         global _start
 
 _start:
-       call        print_fizz
-       call        print_buzz
-       call        print_fizzbuzz
-       jmp         exit_0
+        xor        r8, r8
+
+main_loop:
+        inc        r8
+
+        ; do checks and print
+        call       print_fizz
+
+        cmp        r8, 100
+        je         exit_0                      ; Exit once 100 reached
+        jmp        main_loop                   ; else keep looping
+
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; If 0 exit after
 
 print_fizzbuzz:
-        ; set a = 1
-        ; jmp print_fizz
         mov        rbx, 1                      ; rbx = 1 (fizz and buzz)
         jmp        do_fizz
 
@@ -45,10 +51,6 @@ print_fizz:
         xor        rbx, rbx                    ; rbx = 0 (only print fizz)
 
 do_fizz:
-        ; print "Fizz"
-        ; if a == 0 skip to new line print
-        ;ret
-        ; print "Buzz"
         mov        rax, 1                      ; sys_write
         mov        rdi, 1                      ; stdout
         mov        rsi, fizz                   ; string
@@ -68,10 +70,10 @@ print_buzz:
 
 print_new_line:
         ; print "\n"
-        mov     rax, 1                      ; sys_write
-        mov     rdi, 1                      ; stdout
-        mov     rsi, cr                     ; string
-        mov     rdx, 1                      ; length
+        mov        rax, 1                      ; sys_write
+        mov        rdi, 1                      ; stdout
+        mov        rsi, cr                     ; string
+        mov        rdx, 1                      ; length
         syscall
 
         ret
@@ -82,8 +84,8 @@ print_new_line:
 ; Exit program and pass 0 (success) back to calling OS.
 ; ----------------------------------------------------------
 exit_0:
-        mov     rax, 60                     ; sys_exit
-        xor     rdi, rdi
+        mov        rax, 60                     ; sys_exit
+        xor        rdi, rdi
         syscall
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
