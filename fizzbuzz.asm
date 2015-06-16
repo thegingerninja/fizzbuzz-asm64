@@ -20,7 +20,7 @@ fizz:               db        "Fizz"
 buzz:               db        "Buzz"
 cr:                 db        10
 
-last_num:           equ       10               ; Numbers go from 1 to last_num
+last_num:           equ       100              ; Numbers go from 1 to last_num
 
 ; ------------------------------------------------------------------------------
 section .bss                                   ; variables
@@ -36,7 +36,6 @@ section .text                                  ; program
 
 _start:
         xor        r8, r8                      ; R8 - Loop counter e.g. 1..100
-        mov        r9, 9
 
 main_loop:
         inc        r8
@@ -44,9 +43,9 @@ main_loop:
         ; do checks and print
         ;call       print_fizz
 
-        ; temp: check 9..0 digits print
+        ; temp: print all the numbers to check digit printing
+        mov        rax, r8
         call       print_byte_as_num
-        dec        r9
 
         cmp        r8, last_num
         je         exit_0                      ; Exit once 100 reached
@@ -93,24 +92,31 @@ print_new_line:
 
 ; ----------------------------------------------------------
 ; Print a positive integer in Ascii to stdout
-; Input: r9 = byte to print
-; r9 is preserved
+; Input: eax = byte to print
 ; ----------------------------------------------------------
 print_byte_as_num:
-        push       r9
 
-        add        r9, 0x30                    ; Convert int to char
-        mov        [output_buffer], r9
+each_digit_loop:
+        mov        rdx, 0
+        mov        rcx, 10
+        div        rcx                         ; Result in rax and remainder in rdx
+        push       rax                         ; Save the result
+
+        add        rdx, 0x30                   ; Convert int to char
+        mov        [output_buffer], rdx        ; digit is the remainder
 
         mov        rax, 1                      ; sys_write
         mov        rdi, 1                      ; stdout
-        mov        rsi, output_buffer          ; the ascii
+        mov        rsi, output_buffer          ; input ascii char
         mov        rdx, 1                      ; length
         syscall
 
+        pop        rax
+        cmp        rax, 0                      ; Was this the last digit?
+        jnz        each_digit_loop             ; if not, loop again
+
         call       print_new_line
 
-        pop        r9
         ret
 
 ; ----------------------------------------------------------
