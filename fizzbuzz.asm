@@ -40,17 +40,39 @@ _start:
 main_loop:
         inc        r8
 
-        ; do checks and print
-        ;call       print_fizz
-
-        ; temp: print all the numbers to check digit printing
+        xor        r9, r9
+        mov        rdx, 0
+        mov        rax, r8
+        mov        rcx, 3
+        div        rcx                         ; Result in rax, remainder rdx
+        cmp        rdx, 0
+        jnz        not_divisable_by_3
+        or         r9, 1
+not_divisable_by_3:
+        mov        rdx, 0
+        mov        rax, r8
+        mov        rcx, 5
+        div        rcx                         ; Result in rax, remainder rdx
+        cmp        rdx, 0
+        jnz        not_divisable_by_5
+        or         r9, 2
+not_divisable_by_5:
+        cmp        r9, 0
+        jnz        skip_digit_print
         mov        rax, r8
         call       print_byte_as_num
-
+        jmp        continue
+skip_digit_print:
+        cmp        r9, 1
+        jnz        skip_fizz_print
+        call       print_fizz
+        jmp        continue
+skip_fizz_print:
+        call       print_buzz
+continue:
         cmp        r8, last_num
         je         exit_0                      ; Exit once 100 reached
         jmp        main_loop                   ; else keep looping
-
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
