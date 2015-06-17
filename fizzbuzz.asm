@@ -57,6 +57,8 @@ not_divisable_by_3:
         jnz        not_divisable_by_5
         or         r9, 2
 not_divisable_by_5:
+
+        ; At this point r9 - 1 = fizz, 2 = buzz, 3 = fizzbuzz, 0 = number
         cmp        r9, 0
         jnz        skip_digit_print
         mov        rax, r8
@@ -68,7 +70,12 @@ skip_digit_print:
         call       print_fizz
         jmp        continue
 skip_fizz_print:
+        cmp        r9, 2
+        jnz        skip_buzz_print
         call       print_buzz
+        jmp        continue
+skip_buzz_print:
+        call       print_fizzbuzz
 continue:
         cmp        r8, last_num
         je         exit_0                      ; Exit once 100 reached
